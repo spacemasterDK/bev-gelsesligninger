@@ -2,7 +2,6 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
-from numba import njit
 from time import time
 from scipy.interpolate import interp1d
 from IPython.display import clear_output
@@ -24,7 +23,7 @@ def vis_acceleration(filnavn, akse):
     absolut = data[:,4]
     
     total = 0
-    first_second_index = np.where(tid < 0.5)[0][-1]
+    first_second_index = np.where(tid < 1)[0][-1]
     
     if akse == "x":
         for i in x[:first_second_index]:
@@ -73,9 +72,71 @@ def vis_acceleration(filnavn, akse):
     
     return tid,acceleration
 
+def vis_bevægelsesligningerne(acceleration):
+    
+    hastighedsgraf = []
+    stedgraf = []
+    hastighed_global = 0
+    sted_global = 0
+    tid_forrige = acceleration[0][0]
 
+    for i,j in zip(acceleration[1],acceleration[0]):
+        dt = j-tid_forrige
+        hastighed_global+=i*dt
+        hastighedsgraf.append(hastighed_global)
+        tid_forrige = j
 
-def vis_bevægelsesligningerne(acceleration, fra, til):
+    for i,j in zip(hastighedsgraf,acceleration[0]):
+        dt = j-tid_forrige
+        sted_global+=i*dt
+        stedgraf.append(sted_global)
+        tid_forrige = j
+    
+    fig, ax = plt.subplots(3,1,figsize = (12,12))
+    
+    
+    
+    hastighed = hastighedsgraf
+    sted = stedgraf
+    Nytid = acceleration[0]
+    Nyacceleration = acceleration[1]
+    middelacceleration = acceleration[1]
+    
+    MA = np.mean(middelacceleration)
+    MAXH = np.max(hastighed)
+    MINH = np.min(hastighed)
+    STED = np.abs(np.abs(np.min(sted))-np.abs(np.max(sted)))
+    
+    print(f"Gennemsnitlig acceleration: {MA:.3f} m/s\u00B2 \n")
+    print(f"Maksimal hastighed: {MAXH:.3f} m/s\n")
+    print(f"Minimal hastighed: {MINH:.3f} m/s\n")
+    print(f"Tilbagelagt afstand: {STED:.3f} m\n")
+    
+    ax[0].plot(acceleration[0],acceleration[1], linewidth = 1, color = "black", label = "Acceleration")
+    
+    
+    ax[1].plot(Nytid,hastighed,linewidth = 1,color = "black", label = "Hastighed")
+    
+    ax[2].plot(Nytid,sted, linewidth = 1, color = "black", label = "Position")
+    
+    # ax[0].set_title(r"Acceleration (m/s$^2$)")
+    ax[0].set_ylabel(r"Acceleration (m/s$^2$)") 
+    
+    # ax[1].set_title(r"Acceleration (m/s$^2$)")    
+    # ax[2].set_title(r"Hastighed (m/s)")
+    ax[1].set_ylabel(r"Hastighed (m/s)")
+    
+    # ax[3].set_title(r"sted (m)")
+    ax[2].set_xlabel("tid (s)")
+    ax[2].set_ylabel(r"sted (m)")
+    for i in range(3):
+        ax[i].legend()
+    
+    
+    
+    return 
+
+def søg_bevægelsesligningerne(acceleration, fra, til):
     
     start = 0
     slut = 0
@@ -84,10 +145,14 @@ def vis_bevægelsesligningerne(acceleration, fra, til):
         if acceleration[0][i] >= fra:
             start += i
             break
+        # else:
+        #     start = 0
     for i in range(len(acceleration[0])):
         if acceleration[0][i] >= til:
             slut += i
             break
+        # else: 
+        #     start = -1
     
     hastighedsgraf = []
     stedgraf = []
@@ -107,7 +172,7 @@ def vis_bevægelsesligningerne(acceleration, fra, til):
         stedgraf.append(sted_global)
         tid_forrige = j
     
-    fig, ax = plt.subplots(4,1,figsize = (14,14))
+    fig, ax = plt.subplots(4,1,figsize = (12,16))
     
     
     
