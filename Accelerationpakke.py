@@ -141,22 +141,22 @@ def søg_bevægelsesligningerne(acceleration, fra, til):
     start = 0
     slut = 0
     
-for i in range(len(acceleration[0])):
+    for i in range(len(acceleration[0])):
         if acceleration[0][0] >= fra:
             start = 0
             break
         if acceleration[0][i] >= fra:
             start += i
             break
-
+    
     for i in range(len(acceleration[0])):
         if acceleration[0][-1] <= til:
             slut += -1
             break
 
-        if acceleration[0][i] >= til:
-            slut += i
-            break
+    if acceleration[0][i] >= til:
+        slut += i
+        break
     
     hastighedsgraf = []
     stedgraf = []
@@ -231,4 +231,5 @@ for i in range(len(acceleration[0])):
     
     
     return 
+
 
