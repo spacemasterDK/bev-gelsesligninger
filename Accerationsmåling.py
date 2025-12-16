@@ -42,9 +42,9 @@ def vis_acceleration(filnavn, akse):
             acceleration.append(i-mean)
     
     if akse == "z":
-        for i in z[:first_second_index]:
+        for i in z:
             total += i
-        mean =total/len(z[:first_second_index])
+        mean =total/len(z)
         acceleration = []
         for i in z:
             acceleration.append(i-mean)
@@ -59,7 +59,14 @@ def vis_acceleration(filnavn, akse):
     
         
     
-    fig, ax = plt.subplots(1,1,figsize = (12,4))
+    fig, ax = plt.subplots(1,1,figsize = (8.27, 4),dpi=300)
+    plt.rcParams.update({
+    "font.size": 12,
+    "axes.titlesize": 14,
+    "axes.labelsize": 12,
+    "xtick.labelsize": 10,
+    "ytick.labelsize": 10,
+    })  
     
     Nyacceleration = acceleration
     ax.plot(tid,Nyacceleration, linewidth = 1, color = "black")
@@ -92,7 +99,14 @@ def vis_bevægelsesligningerne(acceleration):
         stedgraf.append(sted_global)
         tid_forrige = j
     
-    fig, ax = plt.subplots(3,1,figsize = (12,12))
+    fig, ax = plt.subplots(3,1,figsize = (8.27, 12),dpi=300)
+    plt.rcParams.update({
+    "font.size": 12,
+    "axes.titlesize": 14,
+    "axes.labelsize": 12,
+    "xtick.labelsize": 10,
+    "ytick.labelsize": 10,
+    })  
     
     
     
@@ -131,7 +145,12 @@ def vis_bevægelsesligningerne(acceleration):
     ax[2].set_ylabel(r"sted (m)")
     for i in range(3):
         ax[i].legend()
+    figur_mappe = "Grafer"
+    if not os.path.exists(figur_mappe):
+        os.makedirs(figur_mappe)
     
+    figure_path = os.path.join(figur_mappe, "Bevægelsesligning.png")
+    fig.savefig(figure_path, bbox_inches="tight")
     
     
     return 
@@ -176,7 +195,14 @@ def søg_bevægelsesligningerne(acceleration, fra, til):
         stedgraf.append(sted_global)
         tid_forrige = j
     
-    fig, ax = plt.subplots(4,1,figsize = (12,16))
+    fig, ax = plt.subplots(4,1,figsize = (8.27, 16),dpi=300)
+    plt.rcParams.update({
+    "font.size": 12,
+    "axes.titlesize": 14,
+    "axes.labelsize": 12,
+    "xtick.labelsize": 10,
+    "ytick.labelsize": 10,
+    })  
     
     
     
@@ -190,8 +216,15 @@ def søg_bevægelsesligningerne(acceleration, fra, til):
     
     print(f"Gennemsnitlig acceleration: {MA:.3f} m/s\u00B2 \n")
     if stedgraf[-1]<=0:
-        sted = [-s for s in stedgraf]
-        hastighed = [h-hastighedsgraf[-1] for h in hastighedsgraf]
+        sted = []
+        sted_global = 0
+        tid_forrige = acceleration[0][start-1]
+        hastighed = np.array([h-hastighedsgraf[-1] for h in hastighedsgraf])
+        for i,j in zip(hastighed,acceleration[0][start:slut]):
+            dt = j-tid_forrige
+            sted_global+=i*dt
+            sted.append(sted_global)
+            tid_forrige = j
     else:
         hastighed = hastighedsgraf
         sted = stedgraf
@@ -235,9 +268,16 @@ def søg_bevægelsesligningerne(acceleration, fra, til):
         ax[i].legend()
         if i>1:
             ax[i].grid()
+    figur_mappe = "Grafer"
+    if not os.path.exists(figur_mappe):
+        os.makedirs(figur_mappe)
     
+    figure_path = os.path.join(figur_mappe, "søgning.png")
+    fig.savefig(figure_path, bbox_inches="tight")
     
     
     return 
+
+
 
 
